@@ -1,0 +1,89 @@
+Kuberbetes: Is a framework for building distributed platform
+- Consist of clusters
+	- Cluster consist of master node/API/scheduler
+	- Kubernetes use "pods"
+	- A pod can consist of one or more clusters
+	- Pods share the same IP address and local host
+	
+- Cluseter
+	- Built of a cluster of worker nodes
+	- Workernodes have ethernet 0 attached to them
+	- Worker nodes act like IP router
+
+- Services: A set of pods that work together 
+
+- All nodes within the cluster has connectivity (L2/L3/Overlay) 
+
+Node Networking 
+	- Pod is grouping one or more containers 
+	- Pods share same IP address and local host
+	- Node need to be advertised when using flat routed network
+		- Key value store ETCD is used to in mapping instead of routing tables. Usually done in overlay typology tunneling between worker nodes
+
+Container Bridge (Virtual switch)
+	- Is connected to the worker node that acks as router
+
+
+Communication thru Kubernetes/Pod to Pod communications
+	- Cluster IP (east<->west)
+		Endpoints (listing of pods); What ports do you want to expose
+	- Node port (externally) 
+		Endpoints (listing of pods); What ports do you want to expose
+		Also can load balance 
+
+
+Treat datacenter as one logical computer
+- What if you could never ssh into a machine again? How would you manage?
+
+
+Kubernetes is declarative (code)
+Kubernetes contract is that of FexEx: If you put it in a box, I can tell you when it's going to get there
+All dependencies goes into one container
+	- packaging format and runtime
+
+
+Kube example
+---
+apiVersion: v1
+kind: Pod
+metadate:
+ name: nginx
+ labels:
+  app: nginx
+spec:
+ containers:
+  image: 1.10.0
+---
+
+Dockerfile example:
+---
+FROM ruby:2.3.1
+RUN mkdir /lobsters
+WORKDIR /lobsters
+ADD Gemfile /lobsters/Gemile
+ADD Gemfile.lock /lobsters/Gemfile.lock
+RUN apt-get update && apt-get install nodejs -y
+RUN bundle install
+ADD . /lobsters
+ENTRYPOINT ["/lobsters/bin/rails", "server"]
+Declaring that I want this particular application running.
+
+What is nginx?
+- One thing that nginx can do is load balance
+
+Understanding command in Dockerfile
+
+What is Ruby on Rails and what does it do?
+- Web framework; can quickly build out web site and includes most dependencies and what you need to get started
+- writing web applications using less code
+- MVC architecture; convention over configuration; Don't repeat yourself (DRY)
+- MVC into 3 seperate parts: Models (business logic); views (presentation; Controller (sits between Model and Views)
+
+What is Solaris?
+
+What is a scheduler?
+- Selecting which resources to use for each run job
+- Assigns priority
+
+
+What is conjure-up?
