@@ -1,8 +1,8 @@
 #!bin/bash
 
-it [[ -f ips.txt ]]; then
+if [[ -f ips.txt ]]; then
       rm ips.txt
-      echo "this file alreadt existed, a new one was made in its place"
+      echo "this file already existed, a new one was made in its place"
 fi
 
 ping -c 4 google.com > ips.txt
