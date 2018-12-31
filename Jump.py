@@ -1,5 +1,5 @@
 import time
-#Test code that does random things
+#Pushing to github
 
 def countdown(n):
     while n > 0:
