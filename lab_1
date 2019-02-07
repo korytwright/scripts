@@ -1,0 +1,48 @@
+<head>
+<title>Bottles of Beer</title>
+<script type="text/javascript">
+function SingSong()
+    {
+        var count;
+
+        count = parseFloat(document.myForm.myTextBox.value); 
+        document.myForm.Output.value = "";               
+
+        while (count > 0) {                                 
+         document.myForm.Output.value =                
+         document.myForm.Output.value + count +
+         " Bottles of beer on the wall, "+ count +
+	 " bottles of beer!" + "\n" +
+	 "Take one down and pass it around " + "\n"
+       
+	 count = count - 1;
+	 
+	 document.myForm.Output.value = 
+	 document.myForm.Output.value + count + " bottles of beer on the wall!" +"\n\n";
+
+	}
+    
+	    
+    }
+
+
+</script>
+</head>
+
+<body style="text-align:center">
+<h2>Bottles of Beer</h2>
+
+<form name="myForm">
+
+Enter Initial Number of Bottles:
+<input type="text" name="myTextBox" size="5" value="" />
+<br />
+
+<input type="button" value="sing song" onClick="SingSong ();" />
+<br />
+<textarea name="Output" rows=15 cols=40 wrap="virtual" ></textarea>
+
+</form>
+</body>
+
+</html>
