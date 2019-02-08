@@ -586,3 +586,10 @@ grep "Packet Loss" [as]plsbc*  | grep "Oct 27" | wc -l
 
 This is the new location for the transaction logs
 Z:\vnoc\XferFolder\sk-net-transaction-logs\2018-Archive\08-31-2018
+
+
+Just for our own info, below is how to run a test query with debug turned on so we can see the response from the go2broadband server:
+
+[csmith@splsip50a ~]$  /usr/pkg/vail/go2broadbandVailWSClient_1_0_14-1.0/bin/go2broadbandVailWSClient.pl callid=nagiostest url=production operation=SelectMSO debug=1 timeout=10 Zip=60015
+
+This can be run from any of the shared 50 cell servers: [as]plsip5[01][ab]
