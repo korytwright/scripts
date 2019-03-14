@@ -1,0 +1,219 @@
+Chapter 1
+
+Terms:
+
+Cluster- one or many pods
+
+Pod-is a group of applications providing the same service (replicas)
+
+Node-is a physical device that house the pod(s)
+
+Velocity-is measured not in terms of the raw number of features you can ship per hour or day, but rather in terms of the number of things you can ship while maintaining a highly available service.
+
+Scaling (of both software and teams)
+
+Abstracting your infrastructure
+
+Efficiency
+
+Decoupling-making sure front-end and back-end are completely seperated; front end would use API to comminucate with backend.
+
+*****************************
+
+Chapter 2 Creating and Running Containers
+
+Docker consist of images and containers.
+	- And image can either be created by a Dockerfile, or is pulled down from a repo
+	- Docker containers are created from Docker images (the evironment and variable declared inside of the Dockerfile)
+
+A container can either be a system container, or an application container.
+	- System containers seek to mimic virtual machines and often run a full boot process. They often include a set of system services typically found in a VM, such as ssh, cron, and syslog
+	- Application containers commonly run a single application
+
+Container images are constructed of a series of filesystem layers, where each layer inherits and modifies the layer that came before it.
+
+Container images are typically combined with a container configuration file, which provides instructions on how to set up the container environment and execute anapplication entrypoint
+
+The container root filesystem and configuration file are typically bundled using the Docker image format.
+
+Fork - Is when you build off of a container image and it is independant of the parenet image (starting its own branch).
+
+
+
+*****************************
+
+Chapter 3 Installing Kubes on AWS, Google Cloud Platform, Microsoft Azure and Raspberry Pi
+
+
+$ kubectl get nodes (list all nodes in the cluster)
+
+$ kubectl describe nodes node-1 (see basic information about a specific node)
+
+Cluster components:
+Kube Proxy-is responsible for routing network traffic to load-balancedservices in the Kubernetes cluster (ran using Kubernetes DaemonSet).
+
+Kube DNS-which provides naming and discovery for the services that are defined in the cluster (ran using Kubernetes deployment).
+
+Kuberenets UI is ran using deployment; get information about UI dashboard: $ kubectl get deployments --namespace=kube-system kubernetes-dashboard
+
+Everything contained in Kubernetes is represented by a RESTful resource (API).
+
+*****************************
+
+Chapter 4 Common kubectl Commands
+
+Namespaces-You can think of each namespace as a folder that holds a set of objects. By default, the kubectl command- line tool interacts with the default namespace. If you want to use a different namespace, you can pass kubectl the --namespace flag. For example, kubectl -- namespace=mystuff references objects in the mystuff namespace
+
+Contexts-If you want to change the default namespace more permanently, you can use a context. This gets recorded in a kubectl configuration file, usually located at $HOME/.kube/config
+	- Context is like namespace but more permanent; can have diff namespace/context: $ kubectl config set-context my-context --namespace=mystuff
+	- In oder to USE context, must be imparatively expressed: $ kubectl config use-context my-context
+
+Another common task is extracting specific fields from the object: $ kubectl get pods my-pod -o jsonpath --template={.status.podIP}
+	
+# Let’s assume that you have a simple object stored in obj.yaml. You can use kubectl to create this object in Kubernetes by running: #
+	- $ kubectl apply -f obj.yaml
+
+# to add the color=red label to a pod named bar, you can run: #
+$ kubectl label pods bar color=red
+
+NOTE By default, label and annotate will not let you overwrite an existing label. To do this, you need to add the --overwrite flag. NOTE
+
+# If you want to remove a label, you can use the -<label-name> syntax: #
+$ kubectl label pods bar -color
+
+# You can also use the exec command to execute a command in a running container: #
+$ kubectl exec -it <pod-name> -- bash
+	- This will provide you with an interactive shell inside the running container so that you can perform more debugging.
+
+$ kubectl cp <pod-name>:/path/to/remote/file /path/to/local/file
+	- This will copy a file from a running container to your local machine.
+
+*****************************
+
+Chapter 5 Pods
+
+*****************************
+
+Chapter 13
+
+StatefulSets
+Automating MongoDB Cluster Creation
+Manually replicated mongo db with stateful sets
+
+*****************************
+
+Chapter 14 Deploying Real-World Apps
+
+Three examples used in this chapter:
+
+Parse, an open source API server for mobile applications
+	- replicate MongoDB using Kube StatefulSets
+	- 1st, clone the Parse repo: git clone https://github.com/ParsePlatform/parse-server
+
+Ghost, a blogging and content management platform
+
+Redis, a lightweight, performant key/value store
+	- consist of two programs: redis-server and redis-sentinel
+		- redis-servers: slave (replica RO for LB) and master (RW)
+		- redis-sentinel: health check and failovers
+
+	- 3 config files are needed: master, slave and sentinel
+	- 2 bash files: init.sh (to determine master/slave config to use on which server) and sentinel.sh for sentinel 
+	- redis service needs to be created w/yaml file (w/o a cluster IP address)
+
+
+Stateful vs Stateless
+
+
+Deploying Parse server need three environment variables:
+APPLICATION_ID
+An identifier for authorizing your application
+
+MASTER_KEY
+An identifier that authorizes the master (root) user
+
+DATABASE_URI
+The URI for your MongoDB cluster
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				Misc Notes
+Naming and DNS is done using "kind: Service" yaml
+
+
+YAML for exposing Kube service:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: parse-server
+  namespace: default
+spec:
+  ports:
+    - port: 1337
+      protocol: TCP
+      targetPort: 1337
+  selector:
+    run: parse-server
+
+
+
+
+Example 14-11. redis.yaml
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  replicas: 3
+  serviceName: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+  spec:
+    containers:
+    - command: [sh, -c, source /redis-config/init.sh ]
+      image: redis:3.2.7-alpine
+      name: redis
+      ports:
+      - containerPort: 6379
+        name: redis
+      volumeMounts:
+      - mountPath: /redis-config
+        name: config
+      - mountPath: /redis-data
+       name: data
+    - command: [sh, -c, source /redis-config/sentinel.sh]
+      image: redis:3.2.7-alpine
+      name: sentinel
+      volumeMounts:
+      - mountPath: /redis-config
+        name: config
+      volumes:
+      - configMap:
+        defaultMode: 420
+        name: redis-config
+      name: config
+    - emptyDir:
+      name: data
+
+^^NOTE^^
+You can also note that there are two volumes defined in the Pod. One is the volume
+that uses our ConfigMap to configure the two Redis applications, and the other is a
+simple emptyDir volume that is mapped into the Redis server container to hold the
+application data so that it survives a container restar
