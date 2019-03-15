@@ -92,6 +92,73 @@ $ kubectl cp <pod-name>:/path/to/remote/file /path/to/local/file
 
 Chapter 5 Pods
 
+A Pod represents a collection of application containers and volumes running in the same execution environment.
+
+Each container within a Pod runs in its own cgroup, but they share a number of Linux namespaces.
+
+Applications running in the same Pod share the same IP address and port space (network namespace), have the same hostname (UTS namespace)...
+
+However, applications in different Pods are isolated from each other; they have different IP addresses, different hostnames, and more. 
+
+Containers in different Pods running on the same node might as well be on different servers.
+
+Kubernetes strongly believes in declarative configuration. 
+	- Declarative configuration means that you write down the desired state of the world in a configuration and then submit that configuration to a service that takes actions to ensure the desired state becomes the actual state.
+
+The simplest way to create a Pod is via the imperative kubectl run command
+	- $ kubectl run kuard --image=gcr.io/kuar-demo/kuard-amd64:1
+
+
+Example 5-1. kuard-pod.yaml_______________________________________________
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+spec:
+  containers:
+    - image: gcr.io/kuar-demo/kuard-amd64:1
+    name: kuard
+    ports:- containerPort: 8080
+      name: http
+      protocol: TCP
+
+*** to run this pod: $ kubectl apply -f kuard-pod.yaml ***
+___________________________________________________________________________
+
+Mapping local machine port through the Kubernetes master, to the instance of the Pod running on one of the worker nodes
+	- $ kubectl port-forward kuard 8080:8080
+
+Coping files from pod/container to local
+	- $ kubectl cp <pod-name>:/captures/capture3.txt ./capture3.txt
+
+Coping files from local to pod/container
+	- $ kubectl cp $HOME/config.txt <pod-name>:/config.txt
+
+
+Heath Check and Liveness Probe Example____________________________________
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kuard
+spec:
+  containers:
+    - image: gcr.io/kuar-demo/kuard-amd64:1
+      name: kuard
+      livenessProbe:
+        httpGet:
+          path: /healthy
+          port: 8080
+        initialDelaySeconds: 5
+        timeoutSeconds: 1
+        periodSeconds: 10
+        failureThreshold: 3
+      ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
 *****************************
 
 Chapter 13
