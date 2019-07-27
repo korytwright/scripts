@@ -1,0 +1,595 @@
+[servers]
+[as]plsgw01	-	secure gateway
+dpwadc03	-	active directory      
+[as]plweb0[12][ab]	- Unix admins and reporting
+dpwadc02	-	Excel/Office stuff
+
+[civicom]
+[as]pwsql0[45]
+
+[Physical Addresses]
+WL Office	-	224 N DesPlaines Suite 400
+http://samba01.vail/techops/Data_Center_Docs/
+
+[restart slmux]
+For textplus:
+[as]pssip50[3456]a   port: 10009
+
+
+[pull proxy logs]
+get on dfwmac01
+grep -h callID  [as]psbpx20[01]a-0 | egrep 'INVITE request for|forwarding 200 OK  (INVITE)'
+grep callID box
+
+
+[quiesce]
+civicom mixers
+	https://www.civi.com/cgi-bin/padmin.pl
+
+
+
+[Level 3 Hybrid Audio Service]
+http://samba01.vail/~mike/doc/ops_handbook/node22.html
+
+
+[widnows domain stuff]
+xfreerdp -d vailsys -u ecimino dpwadc03
+
+
+[reports]
+There are useful reports on myvail.  You can lists of calls for specific customers.
+
+[rsync]
+rsync -avu --exclude "/.cache" --progress ecimino@dfwnoc2:/home/ericn/ /home/ericn/
+
+[oscr logs]
+ssh to given server
+ps -ef for the oscr version
+go to /u1/oscr_version/var/something
+
+[packet loss]
+Core LATAM and PA Global V7V
+	email Microsoft Mission Control and CCS Telecom. Let them know we're seeing packet loss on calls from Telefonica and ask them to engage Telefonica
+
+[shutdown oscr and oscr IP]
+grab PIM paper from above file cabinet.
+Disable PIM.
+Telnet to machine 10002 for oscr
+Telnet to machine 10003 for oscr ip
+Run:
+	admin - vailtest
+	shutdown quiesce
+Remote desktop to the machine and restart oscr/oscr ip
+microsoft icm connector
+v7v
+Activate the PIM
+
+[server down]
+if you can't lom or serial console do these:
+http://cvs.vail/cgi-bin/cvsweb.cgi/~checkout~/netadmin/doc/auapc_config?rev=HEAD
+http://auapc04a.vail
+
+[sql mirror sync]
+server_name:7900 for single
+server_name:9200 for group
+
+[CLEARING PROC_MEMUSE ERRORS IN ICINGA/NAGIOS]
+1. ssh to server
+3. Confirm PID in error same as on server: prstat -s size
+4. Look up and match port number with PID: lsof -i tcp:10000-10999 | grep LISTEN | grep PID
+5. Telnet to port and shutdown quiesce per normal
+
+
+[Microsoft]
+
+YOU CAN'T SERVICE OUT AN ENTIRE CELL AT ONCE
+[OSCR shutdown] -  [as]pwvsv6[456][ab]
+make sure pims are disabled first - http://wiki.vail/index.php/Microsoft_PIMs_Procedures
+telnet server 10002 (for oscr) 10003 (for oscrip)
+admin
+vailtest
+shutdown quiesce
+
+
+Monitor.log | 
+[packet loss statistics]
+ssh vnoc@dfwmac01
+logs
+to get time:
+	grep -h "Packet Loss:" [as]p[ls][sr][ic][pc]*.racc | cut -d ' ' -f 3 | sort
+to get customer counts:
+	grep -h "Packet Loss:" *rcc[12]*.racc | cut -d ' ' -f 4 | cut -d '-' -f 2 | cut -d '.' -f 1 | sort -n | uniq -c | sort -rn
+Vail shared customers:
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | less
+
+Then eleminate server groups one at a time
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep "pssip7" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep "pssip57" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep "civicom.oscr" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep "multi-tenant" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep "pssbc5" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep "pssip58" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep "pssip59" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep -v "pssip59" | grep "spz01wsl01a" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep -v "pssip59" | grep -v "spz01wsl01a" | grep "ctam" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep -v "pssip59" | grep -v "spz01wsl01a" | grep -v "ctam" | grep "bsg" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep -v "pssip59" | grep -v "spz01wsl01a" | grep -v "ctam" | grep -v "bsg" | grep "s5[01][ab]" | wc -l
+
+grep "RTP" Platform\ Monitor.log | grep "Mar 31" | grep -v "psrcc" | grep -v "pwvsv" | grep -v "pssip50[0123456]" | grep -v "psvvb" | grep -v "pssip7" | grep -v "pssip57" | grep -v "civicom.oscr" | grep -v "multi-tenant" | grep -v "pssbc5" | grep -v "pssip58" | grep -v "pssip59" | grep -v "spz01wsl01a" | grep -v "ctam" | grep -v "bsg" | grep -v "s5[01][ab]" | grep "spz02wsl01a" | wc -l
+
+get list of affected IPs
+	egrep 'Packet Loss:' *rcc[12]*.racc | awk '{print $14}' | cut -f1 -d':' | sort | uniq -c | sort -rn
+ssh spsrcc100a to find customer names.
+
+[Pulling racc logs for packet loss]
+ssh vnoc@dfwmac01
+grep for packet loss
+connect to secure gateway
+connect to racc machine
+cat /etc/inittab | grep respawn | grep CUSTOMER_NUMBER
+cd to customer directory
+grep for thread id
+copy call id
+put in conversation summary
+
+PACKET LOSS pulling the indexes from a list of packet loss alerts:
+packetLossErrors -d 23 -m aug -s au -c 200 | nbstranslate | awk '{print $4}' | awk '{FS="-"} {print $2}' | sed -e 's/\.racc//g' | sort | uniq
+
+packetLossErrors -d 26 -m sep -c 200 | nbstranslate | awk '{print $4}' | awk '{FS="-"} {print $2}' | sed -e 's/\.racc//g' | sort | uniq
+
+[whistle analytics]
+vail82
+
+[Host Error Log RACC]
+ssh jump
+ssh host
+cd /u1
+cd version number that RACC customer is using
+cat /etc/init/RACC-CUST-NUM
+cd /u1/raccversion/
+cd cust num
+less racc.log | grep <threadID>
+
+
+[reset proxy database server]
+http://proxy:7900/
+Click sql_proxy
+http://spsprx100a:7900/sql_proxy/
+Click sql_proxy.yaws
+http://spsprx100a:7900/sql_proxy/sql_proxy.yaws
+Click on the appropriate pool that has failed over.
+http://spsprx100a:7900/sql_proxy/sql_proxy.yaws?mode=show_pool&pool_id=racc_cache_pool_v2b_racc_25_prod
+Click  HUP pool, this will reset it, can be done at anytime. 
+
+[State Farm NLP Requests]
+mike@vailsys.com,sundee@versay.com,trever@versay.com,stata@versay.com,vparnas@vailsys.com,mtaylor@vailsys.com,rpettit@vailsys.com
+
+[disk space]
+du -BM -d 1
+
+[vvb log]
+you can connect to a proxy to see if a call used vvb
+	lookupicr [destination number]
+ssh dfwmac01
+grep [call id] [server name] | grep log
+look at first output line for where log was moved to
+connect to server and grab log
+OR
+Look up destination number in conversation summary
+use destination in ICR lookup for process family name
+grep init on server for family name for log directory
+cd to job_number (on ICR page) inside log directory
+grep for call ID from all logs
+
+[platform monitor filters]
+Permanent
+http://cvs.vail/cgi-bin/cvsweb.cgi/sysconfig/dfwmac01/com.vailsys.PlatformMonitor.plist?rev=HEAD;content-type=text%2Fplain
+Temp
+http://dfwmac01.vail/cgi-bin/platform_monitor_filters.cgi
+
+[cisco gateways]
+go to dplweb01 and run:
+sudo /usr/local/bin/ds1_checker.pl
+
+[call counts from proxies]
+grep "LookupCR" [proxy]
+
+[restart OCS]
+shutdown quiesce oscr on port 10002 of bad server
+RDP to server
+shutdown/restart OCS
+start OSCR
+
+[restart Synergy on dfwmac01]
+vnoc@dfwmac01.vail:/Users/vnoc$ ./start_synergy.sh 
+
+[remove create/stop files for call volume]
+ssh to dplweb01
+cd /tmp
+touch stop.customernam
+ssh to dplweb01
+go to /tmp directory
+remove file using 'rm {filename}'
+might have to 'sudo rm {filename}'
+
+[disconnect long calls]
+telnet <host> 10005
+admin
+disconnect <call_id>
+
+[view email headers to determine where scripts/messages/etc come from]
+open email in new tab
+view > headers
+the host preceding dplmail.vail is the origin of the script/message in question
+
+[State Farm NLP bank audit script]
+located at /usr/local/bin/statefarm-nlp-bank-appnav-checker.pl on dplweb01
+
+[yaws pages,database failover]
+http://[hostname]:port
+(example- http://spsprx70b:7900)
+
+[SMB]
+smb://samba01/vnoc/XferFolder/sk-net-transaction-logs/2016-Archive/
+
+[Error Log]
+vnoc@dfwmac01.vail:/Users/vnoc$ pmerrorlog
+
+cat Platform\ Monitor.log | egrep "Microsoft V7V PA Clearinghouse Timeout" | cut -f 1 -d : | uniq -c
+
+[Test to see if we have a numbeer]
+telnet spsprx50b 10000
+lookupicr <number> show call leg for app 
+
+
+[Fraud number]
+Look in Whistle Analytics and freeze account if fraud 
+creat ticket: example : Whistle phone: Fraudulent activity reported on 4057585900
+If not in Whistle check open process:
+myvail.com -> open process -> platform -> enter number
+
+
+[check sms customer down]
+telnet [as]plsms10[01]a 11111
+issue status command
+nslookup hostname to find ipaddr
+find sms tcp port number http://cvs.vail/cgi-bin/cvsweb.cgi/netadmin/cfengine/conf/vailsmsc_ports_info.txt
+verify tcp connection on host for tcp port:
+ssh hostname
+netstat -an | grep 14350 | grep EST
+
+[Error logs]
+PM
+cd pmerrorlogs
+egrep 'returned no record' Platform\ Monitor.log | egrep "Apr 0[456]" | grep "a-2.racc" | grep p[sl]rcc2 | cut -d '<' -f 2 | awk -F '==' '{print $2}' | cut -d ',' -f 2 | sort -n | uniq -c | sort -nr
+
+[Manual ICR Sync]
+Only accessbile via dfwnoc2
+http://apsprx200a:9200 and http://spsprx200a:9200  
+go to racc_cache_sync.yaws, 
+pick cache table group "racc_25", 
+then click safe sync (kind of confusing, its actually only an ICR sync, but it uses the racc cache group sync method which is the reason for the page naming)
+
+[civicom xm restart]
+After going to quiesce mixer page: https://www.civi.com/cgi-bin/padmin-vailoperations.pl?st=62966470mC4tNgBc&screen_number=866
+nslookup XM server (IP_port)
+ssh to host
+from host: telnet `hostname` 100[find port number by next step]
+--> Next Step: Default SIP port - 5060
+Find port offset | given port minus default SIP port {ex. 5103 - 5060 = 43}
+telnet to IP address, port is 10000 plus port offset {ex. telnet IP.Add.re.ss:10043}
+issue command 'admin' | credentials are in NOC server profile book
+issue command 'calls' to verify no calls active
+issue command 'shutdown quiesce'
+
+[call ids for errors w/no ID logged Allstate ARS example]
+1. go to the current day logs directory
+2. open up one of the log files [as]2[23]v6.2.5ars with less
+3. Go to bottom of the file (shift +g) then search up for "Dispatch Data Was Not Posted Successfully"
+4. grab the VAPP thread id. eg "<A39137>"
+5. Go to top of file then search down for the thread ID without the letter. eg "39137>"
+6. Grab call Id from one of the log F
+
+
+[search time range cdr]
+keep interval: range
+StartDate: 2015-04-20 00:00:00 
+EndDate: 2015-04-20 23:59:59
+
+[Queue out whole Cell]
+csmith@dplweb01.vail:/home/csmith$ /usr/local/bin/emergency_scripts/site_quiesce.pl -s sfl3ens200a -a quiesce
+http://wiki.vail/index.php/Tool-Site_Quiesce_Script
+
+resume
+/usr/local/bin/emergency_scripts/site_quiesce.pl -s sfl3ens200a -a resume
+
+ [find all servers that run an application by customer]
+- get a call ID
+- plug into CDR page
+- find call leg dialing to the application server (vvb, RACC, etc)
+- copy DNIS for that leg
+- plug DNIS into ICR cache lookup
+- find process family name (pf_symbolic_name)
+- plug process family name into SIP server lookup page
+
+
+[awk example]
+- Jun 02 09:49:11.354 apssip55a.vvb      [E] VVB Missing Prompt: 2015/06/02 08:49:16.621 W 9d4a76eb04263887556dc2379d469 5461 13032 Network error: status:404, URI:file:/u1/vxml/stream_zig/audio/EN_US/confirmTFN_er1b.wav -- Not found
+- awk '{print $1,$2,$18}'
+- $[number] is the column in the log line
+- each space in the log is a new column
+- $1 = Jun
+- $2 = 02
+- $18 = URI:file.....etc
+
+
+[count by day]
+cat Platform\ Monitor.log | grep "Unauthenticated Request - Ticket Validate Fails" | awk '{print $1,$2}' | uniq -c
+
+
+[count by hour]
+cat Platform\ Monitor.log | grep "Unauthenticated Request - Ticket Validate Fails" |cut -d ':' -f1 | uniq -c
+
+[find racc version on staging]
+**The long way
+find /u1/racc_3_*/var/*/ -name "racc.log" -mtime -1
+usually mt on
+ecat racc.log | grep call_id
+returns thread
+grep for thread id 
+
+*Easy Way
+use DNIS for the call_id from cdr summary
+go to ICR cache lookup
+search for DNIS
+will show what racc version is runnin
+ggo to stg host
+callfind_racc.pl -c call_id -p path_to_log i.e callfind_racc.pl -c 886224_29232130@4.55.0.163 -p /u1/racc_3_4_0106-1.0/var/RACC_MT_STAGING_1/
+
+[followme instances]
+servers: [as]psasr01[ab]
+ports: 10018, 10019, 10020
+
+apsasr01a 10018
+apsasr01a 10019
+apsasr01a 10020
+
+apsasr01b 10018
+apsasr01b 10019
+apsasr01b 10020
+
+spsasr01a 10018
+spsasr01a 10019
+spsasr01a 10020
+
+spsasr01b 10018
+spsasr01b 10019
+spsasr01b 10020
+
+telnet to all 3 instances on each server, go into admin mode, then issue shutdown
+
+[ICM errors just one MS host]
+There were numerous ICM errors coming in like the ones below on apwvsv62a. A similar problem happened earlier in the week (RT_NOC-7054:  Microsoft: spwvsv61a ICM errors).  I telnetted into apwvsv62a 10002 and serviced out the traffic on apwvsv62a, ran the xfreerdp -u name -d vailsys apwvsv62a command to log into apwvsv62a, wnet to services and ran the stop and restart commands on the ICM connector service (first) and Vonitex 7 Server service (second) and then restarted the OSCR on apwvsv62a to service traffic back in
+
+[ECTI logs]
+
+I attached the ECTI logs. In the future, you can pull these by searching for the RACC Call-ID in the logs on [as]plweb05.
+
+{noformat}
+kcassidy@aplweb05.vailsys.com:/home/kcassidy$ sudo grep 7fdd11b9e0f41e5156783e2691e55 /usr/local/tomcat/logs/*log
+
+kcassidy@splweb05.vailsys.com:/home/kcassidy$ sudo grep 7fdd11b9e0f41e5156783e2691e55 /usr/local/tomcat/logs/*log
+
+[restart nagios]
+http://wiki.vail/index.php/NOC_Restart_Nagios-Icinga
+
+[Whistle Driver Gateway]
+telnet [as]pltpx0[12]aa.whistlephone.com 10005
+admin
+vail_prod
+reloaddrivers
+
+[SLMUX restart SYF]
+from dfwmac01:
+servers:
+aplsip3[234567]
+splsip3[234567]
+port: 10009
+enter admin mode
+type: shutdown
+
+[FTP sms phonebook from l3]
+Using Filezilla
+ftps.level3.net
+Port: 990
+Encryption: Requires explicit FTP over TLS
+Username: VAIL
+Password: P1sChang#
+
+[tomcat logs syf]
+aplsip32:/var/log/tomcat6/Synchrony-FDR-Packet.log
+
+[sms no longer active]
+Hello Level 3,
+
+VoIP Street number 3477418387 was added to their SMS phonebook (VoIP Street BusOrg 1-MDEH5) on 2016-03-15, then was removed on 2016-06-20. As of 2016-06-20 this number in no longer in our SMSC system, VoIP Street will not be able to send or receive to this number.
+
+[Level 3 Hybrid Audio]
+Call Disconnets to conferecne:
+Check log for:
+    terminating due to watchdog timer expiration (state=Connected) 
+If found send msg to level 3 with
+:
+"That this call ended because the RTP audio stream from the client was lost so we tore down the call."
+
+Or check log for:
+
+Caller lost SIP connectivity to the Hybrid Audio platform:
+
+05/25 06:03:23.042 {W}<17345> maximum retransmissions of UPDATE request reached, terminating
+05/25 06:03:23.042 {N}<17345> 0.018% RTP packet loss from 167.23.240.22:17375 (16 lost, 90634 received)
+05/25 06:03:23.042 {D}<17345> <17345> callID 17a0fada94c8ba1457458d71bfb88: appNav 'SIP_packet_loss_Rx' '0.02%'
+05/25 06:03:23.042 {D}<17345> QueueEvent: app_nav|17a0fada94c8ba1457458d71bfb88|aplvcc601a|1464177803|42448|12769|14|SIP_packet_loss_Rx|0.02%|SUCCESS
+05/25 06:03:23.042 {D}<17345> Created block 40231
+05/25 06:03:23.042 {D}<17345> appNav: 0 secs, 45 usecs elapsed
+05/25 06:03:23.042 {D}<17345> incomingCall: 17a0fada94c8ba1457458d71bfb88: EventLoopStopped
+05/25 06:03:23.042 {D}<17345> Sending stop CDR event(UNKNOWN) CallId =17a0fada94c8ba1457458d71bfb88
+05/25 06:03:23.054 {D}<17345> free_rde: freed 0x2318100 2000024689  remaining 1000
+
+respond to level 3 with:
+
+Our logs show that the reason for this disconnect was loss of SIP
+connectivity. This is caused when the SIP platform (in this case VICC)
+periodically sends a SIP UPDATE message to the VoIP client application
+and receives no response. We show that a maximum amount of SIP UPDATE
+attempts was reached, after which the call terminated.
+
+This is often caused by short UDP session time outs or hiccups; the SIP
+ports time out at the firewall and subsequent SIP messages sent later on
+during the call are blocked.
+
+
+[PM show more lines]
+dfwmac01.vail/cgi-bin/platform_monitor.cgi?include_group=SYF Pay-by-Phone &lines=20000
+
+[ICM Log]
+splweb02b: /u1/www/stream-ws/shared/log
+file is steam_ws.log
+cat stream_ws.log | grep "in ICM"
+
+[Multiple Dial800 vvb logs]
+egrep 1460293493_74167413@4.55.5.163 | egrep 2030193891_25533258@4.55.15.35 | egrep 1460136634_109814136@4.55.5.163 | egrep 1460063513_71230157@4.55.5.163 |egrep 2030193762_100166223@4.55.15.35 | egrep 2030193759_62220159@4.55.15.35 |egrep 805962247_49808126@4.55.10.163 [as]psvvb10[01]c.vvb *slmux* | grep 'log' | grep 'csv'
+
+[Find test vvb logs]
+Open ICR page search DNIS to find app version number
+'vvb-vail-ucma-test' as an example
+cat /etc/inittab | grep 'respawn' | grep 'vvb-vail-ucma-test' to find log dir
+cd to log dir /u1/something something from grep output above
+find . -type f -exec grep -l "1862410459_126079069@4.55.0.163" {} +
+or grep -l 'callid' *
+
+[SMSC logs]
+I logged into the SMSC mgmt interface (telnet), went into admin mode, entered the "config" command to get a read-out of the running config, looked for the mglb (megapath lab) bind config, checked the port that is set for them (14380) then just did this:
+sudo lsof -i TCP:14380
+
+[mac crash]
+vnoc@mac01-dfw.lan.df.vail:/Users/vnoc$ ls -lhrt /Users/vnoc/Library/Logs/DiagnosticReports/
+
+
+
+cat Platform\ Monitor.log | egrep "RACC All Outdials Failed: Parent Call ID:" | egrep "a-68" | cut -f 1 -d : | uniq -c
+
+This one sorts the numbers: cat Platform\ Monitor.log | grep "All Outdials" | grep "a-68" | awk '{print $1,$2,$17}' | grep "Jun 08" | cut -d '+' -f 1 | sort | uniq -c
+
+Getting call_id from packet loss*******
+$ today
+$ cat aplrcc214a-21.racc | grep "<1053286>"
+
+
+
+cat Platform\ Monitor.log | grep "ars" | grep "RTP packet loss" | grep "Sep 2[56]" | awk '{print $14}' | cut -f 1 -d \: | sort | uniq -c | sort -nr
+ErrorCount RTP_Packet_Loss_IP
+1028 167.127.96.59
+ 167 8.18.118.25
+ 148 8.18.118.24
+
+# awk '{ sum += $1; n++ } END { if (n > 0) print sum / n; }' - add numbers in column $1 in variable sum and increment the number of rows. If there was at least 1 value read, print the average at the end.
+
+LOOK AT ERIC'S SCRIPTS:
+ls /home/ecimino/work/users/ecimino/ (DO NOT USE VIM!!!)
+
+vnoc@vnoc-dtm1.lan.df.vail:/Users/vnoc/Library/Logs$ cat Platform\ Monitor.log | grep "ars" | grep "RTP packet loss" | grep "Sep 2[56]" | awk '{print $4}' | sort | uniq -c | sort -nr
+ErrorCount Server
+1401 a20-2-v7.0.6ars
+  17 a21-2-v7.0.6ars
+
+cat Platform\ Monitor.log | grep "a-107" | grep "RTP packet loss" | grep "Sep 26" | awk '{print $4}' | sort | uniq -c | sort -nr
+
+cat Platform\ Monitor.log | grep "a-107" | grep "Outdials" | grep "Sep 26" | awk '{print $4}' | sort | uniq -c | sort -nr
+
+
+TRANSACTION FRIDAY**
+Pushing PDF file to Windows machine
+
+scp Vail-Sign-In-Out-Sheets-06-02-2017.pdf kwright@samba01:/u1/samba/shares/vnoc/XferFolder/sk-net-transaction-logs/2017-Archive/06-17-2017
+
+scp Vail-Sign-In-Out-Sheets-12-08-2017.pdf kwright@samba01:/u1/samba/shares/vnoc/XferFolder/sk-net-transaction-logs/2017-Archive/12-08-2017
+
+********Restart Synergys**************
+1. open terminal and type "ps faux | grep synergys"
+2. Look at the process PID,, then type "kill -15 <PID>"
+3. enter "ps faux | grep synergys" again and make sure the process is gone
+4. enter synergys and hit enter to start the synergy server again
+
+
+
+*****************CDR Links******************
+(877)496-4362
+http://vnoc-tools.vail/cgi-bin/vnoc/cdr_conversation_summary.cgi?call_id=4cf25c46ddba39565a2aad890303b
+http://vnoc-tools.vail/cgi-bin/vnoc/cdr_conversation_summary.cgi?call_id=3e651543977532615a2981b486f5b
+http://vnoc-tools.vail/cgi-bin/vnoc/cdr_conversation_summary.cgi?call_id=3ad589e391857ae75a298ecbabc08
+
+
+*************Counting errors by hour**************
+cat Platform\ Monitor.log | grep "Oct 0[34]" | grep "Packet002" | cut -d : -f1 | sort | uniq -c
+cat Platform\ Monitor.log | grep "Synchrony_FDR_PACKET/Packet002" | egrep "Sep|Oct" | cut -d : -f1 | sort | uniq -c | sort -b -k2
+
+grep -h "PBP" *plsip* | cut -d ' ' -f 4 | cut -d '-' -f 2 | cut -d '.' -f 1 | sort -n | uniq -c | sort -r
+
+cat Platform\ Monitor.log | grep "Oct 06" | grep "PBP" | cut -d : -f1 | sort | uniq -c
+
+cat Platform\ Monitor.log | grep "Oct 25" | grep "AMDOCS" | cut -d : -f1 | sort | uniq -c
+********************counting errors************************
+
+Error count per server:
+cat Platform\ Monitor.log | grep "a-47" | grep "Outdials" | grep "Oct 22" | awk '{print $4}' | sort | uniq -c | sort -nr
+
+Number of errors per 10 minute intervals:
+tail -10000 "Platform Monitor.log" | grep "\-47.racc \[E\] RACC All Outdials Failed" |grep "^Oct 22" | cut -c 1-11 | uniq -c
+
+
+**********Level 3 Examples*******************
+Pull call id's from actual "outbound" or where the call is being rejected, as opposed to straight form PM errors
+
+
+***********call graphs*************
+I also usually click on Total Calls at the bottom (in the key) to make that line disappear. It's the sum of inbound and outbound calls, and I think it's enough to just have the Total Inbound Calls represented (the dark line). (The Total Calls line is pink or red on this chart.)
+
+
+*********Updating CVS automatically**************************
+(08:33:41 AM) Eric Cimino: #!/bin/bash
+
+cd /Users/ecimino/work/users/ecimino
+echo ""
+echo "Gathering latest CVS repository updates"
+cvs update -PAd
+cd ~
+
+grep "AMDOCS: one_time_payment" [as]p[ls]sip5*.vvb  | grep "Cricket" | grep "Oct 25" | wc -l
+
+grep "Packet Loss" [as]plsbc*  | grep "Oct 27" | wc -l
+
+
+(06:53:59 PM) Chris Smith: theres 3 network uplink voip circuits in each of the AU and SF 200 cells
+(06:54:05 PM) Chris Smith: can have up to 2 down per cell
+(06:54:07 PM) Chris Smith: and no impact
+
+This is the new location for the transaction logs
+Z:\vnoc\XferFolder\sk-net-transaction-logs\2018-Archive\08-31-2018
+
+
+Just for our own info, below is how to run a test query with debug turned on so we can see the response from the go2broadband server:
+
+[csmith@splsip50a ~]$  /usr/pkg/vail/go2broadbandVailWSClient_1_0_14-1.0/bin/go2broadbandVailWSClient.pl callid=nagiostest url=production operation=SelectMSO debug=1 timeout=10 Zip=60015
+
+This can be run from any of the shared 50 cell servers: [as]plsip5[01][ab]
